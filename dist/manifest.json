@@ -1,0 +1,37 @@
+{
+    "name": "InfoTrust LLC Annotation Automation Tool",
+    "description": "TBD",
+    "version": "1.0",
+    "manifest_version": 3,
+    "oauth2": {
+        "client_id": "379307356176-j5rn7runjdntg09hr66euopni15dgmhr.apps.googleusercontent.com",
+        "scopes":["https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/userinfo.profile",
+          "https://www.googleapis.com/auth/ddmconversions",
+          "https://www.googleapis.com/auth/dfareporting",
+          "https://www.googleapis.com/auth/dfatrafficking",
+          "https://www.googleapis.com/auth/analytics",
+          "https://www.googleapis.com/auth/analytics.manage.users",
+          "https://www.googleapis.com/auth/tagmanager",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/doubleclicksearch",
+          "https://www.googleapis.com/auth/webmasters",
+          "https://www.googleapis.com/auth/analytics.readonly",
+          "https://www.googleapis.com/auth/analytics.edit"
+        ]
+      },
+    "key": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlejQ2KTQbubIHkwyqOAjYERWqN8Qf2PtJnkBm3/9PnAW2ami7Pa/CWPhHZFDkn/T3EeSKAvoBvyCDzU0Ttne+W3qV9eP548Ob+aIryVHR3m2e/kFqrsU6qmlVBkL6YR+SCRx0YBJeDVFxeA3mF7OZpBeJqTKNrJ70GDGVE7/YJmx8VqjlzFgEsqp4M+qaHsv2lYIIy0sn0jC0UrSKq1Cnm63bzr0jgqvHIcaLMs/SgFuh/W4N90NdnnTWkbZSzWVR74KjE4UkWQbe8DYoglJhbLRrYCApRLI2H0df3zADd+wADKtsSPj99zrPeOF1oe23fuXX9Tv6mldK6JYcU7mrwIDAQAB-----END PUBLIC KEY-----",
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'"
+    },
+    "background": {
+        "service_worker": "/background.js"
+    },
+    "permissions": ["storage", "tabs", "identity", "scripting"],
+    "host_permissions": ["<all_urls>", "*://*/*"],
+    "action": {
+      "default_popup": "/index.html"
+    }
+  }
