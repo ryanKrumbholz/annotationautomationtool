@@ -42,7 +42,7 @@ submitButton.addEventListener('click', async () => {
     let entitiesRows = entitiesText.split('\n');
     entitiesRows = entitiesRows.map(e => e.split('\t'));
 
-    let entities = [];
+    let URLs = [];
 
     chrome.storage.local.set({
         'annotation': annotationText,
@@ -64,15 +64,17 @@ submitButton.addEventListener('click', async () => {
 
         for(let row of entitiesRows) {
             let entity = await axios.get(`https://www.googleapis.com/analytics/v3/management/accounts/${row[0]}/webproperties/${row[1]}`, options);
-            entities.push(entity.data);
-            
-        }
-
-        for(let entity of entities) {
-            let urlPartial = `a${entity.accountId}w${entity.internalWebPropertyId}p${entity.defaultProfileId}`;
+            let urlPartial = `a${row[0]}w${entity.data.internalWebPropertyId}p${row[2]}`;
             var newURL = `https://analytics.google.com/analytics/web/#/${urlPartial}/admin/annotation/create`;
-            await chromeExecution(newURL);
+            URLs.push(newURL);
         }
+        
+        for(let URL of URLs) {
+            await chromeExecution(URL);
+        }
+        
+        alert('Automation completed!');
+        window.close();
     }); 
 });
 

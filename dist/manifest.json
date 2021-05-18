@@ -32,6 +32,6 @@
     "permissions": ["storage", "tabs", "identity", "scripting"],
     "host_permissions": ["<all_urls>", "*://*/*"],
     "action": {
-      "default_popup": "/index.html"
+      "default_popup": "/popup.html"
     }
   }
