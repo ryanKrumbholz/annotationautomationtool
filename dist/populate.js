@@ -37,7 +37,6 @@ chrome.storage.local.get([
     }
     let form = document.forms[0];
     let starred = document.getElementsByClassName('ga-star')[0];
-    let datepicker = document.getElementsByClassName('annotation-datepicker')[0];
 
     form['text'].value = result.annotation;
 
@@ -52,10 +51,8 @@ chrome.storage.local.get([
     let date = new Date(Date.parse(result.date));
     form[0].value = formatDate(date);
     var tbEvent = new Event('change');
-    var dateEvent = new KeyboardEvent('keydown', {keycode: 13});
     form['text'].dispatchEvent(tbEvent);
-    form[0].focus();
-    form[0].dispatchEvent(dateEvent);
+    form[0].dispatchEvent(new Event('mousedown'));
     form[4].focus();
     form[4].click();
 });

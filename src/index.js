@@ -1,5 +1,25 @@
 import axios from 'axios';
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+async function chromeExecution(newURL) {
+    return new Promise((resolve, reject) => {
+        chrome.tabs.create({ url: newURL, active: false}, async (tab) => {
+            await sleep(3000);
+            chrome.scripting.executeScript(
+                {
+                    target: {tabId: tab.id},
+                    files: ['populate.js']
+                });
+            await sleep(3000);
+            chrome.tabs.remove(tab.id);
+            resolve();
+        });
+    });   
+}
+
 let submitButton = document.getElementById('submit');
 
 chrome.storage.local.get(['token'], async function(result) {
@@ -33,7 +53,6 @@ submitButton.addEventListener('click', async () => {
 
     chrome.storage.local.get(['token'], async function(result) {
         let token = result.token;
-        let apiKey = 'AIzaSyCCrt6Nw2gP6wGXSrteMlJN-cE3ZUzCcDY';
         let options = {
             params: {
                 // key: apiKey
@@ -45,7 +64,6 @@ submitButton.addEventListener('click', async () => {
 
         for(let row of entitiesRows) {
             let entity = await axios.get(`https://www.googleapis.com/analytics/v3/management/accounts/${row[0]}/webproperties/${row[1]}`, options);
-            // let entity = await axios.get(`https://www.googleapis.com/analytics/v3/management/accounts/66031361/webproperties/UA-66031361-19`, options);
             entities.push(entity.data);
             
         }
@@ -53,17 +71,7 @@ submitButton.addEventListener('click', async () => {
         for(let entity of entities) {
             let urlPartial = `a${entity.accountId}w${entity.internalWebPropertyId}p${entity.defaultProfileId}`;
             var newURL = `https://analytics.google.com/analytics/web/#/${urlPartial}/admin/annotation/create`;
-            chrome.tabs.create({ url: newURL, active: false}, (tab) => {
-                chrome.tabs.onUpdated.addListener((tabId, info) => {
-                    chrome.scripting.executeScript(
-                        {
-                            target: {tabId: tabId},
-                            files: ['populate.js']
-                        },
-                        () => {}
-                    )
-                })
-            });
+            await chromeExecution(newURL);
         }
     }); 
 });
