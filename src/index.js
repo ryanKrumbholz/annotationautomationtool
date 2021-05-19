@@ -24,12 +24,14 @@ let submitButton = document.getElementById('submit');
 
 chrome.storage.local.get(['token'], async function(result) {
     let token = result.token;
-    chrome.identity.removeCachedAuthToken({token: token}, () => {
-        console.log('Token cleared.');
-        chrome.identity.getAuthToken({interactive: true}, function(token) {
-            console.log('got the token', token);
-            chrome.storage.local.set({'token': token});
+    if (token) {
+        chrome.identity.removeCachedAuthToken({token: token}, () => {
+            console.log('Token cleared.');
         })
+    }
+    chrome.identity.getAuthToken({interactive: true}, function(token) {
+        console.log('got the token', token);
+        chrome.storage.local.set({'token': token});
     })
 });
 
@@ -63,10 +65,14 @@ submitButton.addEventListener('click', async () => {
         }
 
         for(let row of entitiesRows) {
-            let entity = await axios.get(`https://www.googleapis.com/analytics/v3/management/accounts/${row[0]}/webproperties/${row[1]}`, options);
-            let urlPartial = `a${row[0]}w${entity.data.internalWebPropertyId}p${row[2]}`;
-            var newURL = `https://analytics.google.com/analytics/web/#/${urlPartial}/admin/annotation/create`;
-            URLs.push(newURL);
+            try {
+                let entity = await axios.get(`https://www.googleapis.com/analytics/v3/management/accounts/${row[0]}/webproperties/${row[1]}`, options);
+                let urlPartial = `a${row[0]}w${entity.data.internalWebPropertyId}p${row[2]}`;
+                var newURL = `https://analytics.google.com/analytics/web/#/${urlPartial}/admin/annotation/create`;
+                URLs.push(newURL);
+            } catch(err) {
+                //LOG ERR with Entity info
+            }
         }
         
         for(let URL of URLs) {

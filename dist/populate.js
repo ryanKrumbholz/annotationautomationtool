@@ -55,4 +55,8 @@ chrome.storage.local.get([
     form[0].dispatchEvent(new Event('mousedown'));
     form[4].focus();
     form[4].click();
+
+    if(window.location.href.includes('table')) {
+        // LOG TO COMPLETED LOG
+    }
 });
