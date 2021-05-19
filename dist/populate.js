@@ -56,7 +56,11 @@ chrome.storage.local.get([
     form[4].focus();
     form[4].click();
 
+    await sleep(2000);
     if(window.location.href.includes('table')) {
-        // LOG TO COMPLETED LOG
+        chrome.runtime.sendMessage({status: 'completed'}, res => {
+            console.log(res.data);
+        })
     }
+
 });

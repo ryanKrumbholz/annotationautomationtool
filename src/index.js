@@ -4,7 +4,42 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-async function chromeExecution(newURL) {
+function logErr(message) {
+    chrome.storage.local.get(['errLog'], result => {
+        if(result.errLog) {
+            chrome.storage.local.set({'errLog': `${message}\n`});
+        }
+        else {
+            chrome.storage.local.set({'errLog': `${message}\n`});
+        }
+    });
+}
+
+function logComplete(data) {
+    chrome.storage.local.get(['completedLog'], result => {
+        if(result.completedLog) {
+            chrome.storage.local.set({'completedLog': `${result.completedLog}Entity ${data} annotation completed.\n`});
+        }
+        else {
+            chrome.storage.local.set({'completedLog': `Entity ${data} annotation completed.\n`});
+        }
+    });
+}
+
+function downloadLog(fn, data) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+    element.setAttribute('download', fn);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
+async function chromeExecution(newURL, data) {
     return new Promise((resolve, reject) => {
         chrome.tabs.create({ url: newURL, active: false}, async (tab) => {
             await sleep(3000);
@@ -13,9 +48,15 @@ async function chromeExecution(newURL) {
                     target: {tabId: tab.id},
                     files: ['populate.js']
                 });
-            await sleep(3000);
-            chrome.tabs.remove(tab.id);
-            resolve();
+            chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
+                if(req.status === 'completed') {
+                    console.log(`Completed in tab ${sender.tab.id}`);
+                    sendRes({data: 'received'});
+                    chrome.tabs.remove(sender.tab.id);
+                    logComplete(data);
+                    resolve('Completed');
+                }
+            });        
         });
     });   
 }
@@ -64,21 +105,41 @@ submitButton.addEventListener('click', async () => {
             },
         }
 
+        let count = 0;
         for(let row of entitiesRows) {
+            console.log(`Pulling entity ${count + 1}/${entitiesRows.length}.`);
             try {
                 let entity = await axios.get(`https://www.googleapis.com/analytics/v3/management/accounts/${row[0]}/webproperties/${row[1]}`, options);
                 let urlPartial = `a${row[0]}w${entity.data.internalWebPropertyId}p${row[2]}`;
                 var newURL = `https://analytics.google.com/analytics/web/#/${urlPartial}/admin/annotation/create`;
                 URLs.push(newURL);
             } catch(err) {
-                //LOG ERR with Entity info
+                logErr('Failed to get entity from API. Likely do not have access to this entity.');
             }
+            console.log('Entity pulled.');
+            count++;
         }
         
+        count = 0;
         for(let URL of URLs) {
-            await chromeExecution(URL);
+            await chromeExecution(URL, entitiesRows[count]).then(res => {
+                console.log(res);
+                if (!res) {
+                    logErr(`Entity ${data} annotation failed.`);
+                }
+            });
+            console.log(`Automation ${count + 1}/${URLs.length} completed.`);
+            count++;
         }
         
+        chrome.storage.local.get(['errLog'], result => {
+            downloadLog('errLog.txt', result.errLog);
+        });
+
+        chrome.storage.local.get(['completedLog'], result => {
+            downloadLog('completedLog.txt', result.completedLog);
+        });
+
         alert('Automation completed!');
         window.close();
     }); 
