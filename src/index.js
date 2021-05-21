@@ -1,18 +1,21 @@
 import axios from 'axios';
 
+let errs = [];
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
 function logErr(message) {
-    chrome.storage.local.get(['errLog'], result => {
-        if(result.errLog) {
-            chrome.storage.local.set({'errLog': `${message}\n`});
-        }
-        else {
-            chrome.storage.local.set({'errLog': `${message}\n`});
-        }
-    });
+    errs.push( `test${message}`);
+    // chrome.storage.sync.get(['errorsLog'], result => {
+    //     if(result.errorsLog) {
+    //         chrome.storage.sync.set({'errorsLog': `Test${result.errorsLog}${message}\n`});
+    //     }
+    //     else {
+    //         chrome.storage.sync.set({'errorsLog': `test${message}\n`});
+    //     }
+    // });
 }
 
 function logComplete(data) {
@@ -39,6 +42,7 @@ function downloadLog(fn, data) {
     document.body.removeChild(element);
 }
 
+
 async function chromeExecution(newURL, data) {
     return new Promise((resolve, reject) => {
         chrome.tabs.create({ url: newURL, active: false}, async (tab) => {
@@ -48,6 +52,7 @@ async function chromeExecution(newURL, data) {
                     target: {tabId: tab.id},
                     files: ['populate.js']
                 });
+            setTimeout(() => resolve('Timeout'), 30000)
             chrome.runtime.onMessage.addListener((req, sender, sendRes) => {
                 if(req.status === 'completed') {
                     console.log(`Completed in tab ${sender.tab.id}`);
@@ -56,12 +61,14 @@ async function chromeExecution(newURL, data) {
                     logComplete(data);
                     resolve('Completed');
                 }
-            });        
+            }); 
         });
     });   
 }
 
 let submitButton = document.getElementById('submit');
+
+chrome.storage.local.clear();
 
 chrome.storage.local.get(['token'], async function(result) {
     let token = result.token;
@@ -124,17 +131,24 @@ submitButton.addEventListener('click', async () => {
         for(let URL of URLs) {
             await chromeExecution(URL, entitiesRows[count]).then(res => {
                 console.log(res);
-                if (!res) {
-                    logErr(`Entity ${data} annotation failed.`);
+                if (res === 'Timeout') {
+                    logErr(`Entity ${entitiesRows[count]} annotation failed -- Timeout; Check Captcha or Entity does not exist.`);
+                    console.log(`Automation ${count + 1}/${URLs.length} failed.`);
+                } else if(res === 'Completed') {
+                    console.log(`Automation ${count + 1}/${URLs.length} completed.`);
+                } else {
+                    logErr(`Entity ${entitiesRows[count]} annotation failed.`);
+                    console.log(`Automation ${count + 1}/${URLs.length} failed.`);
                 }
             });
-            console.log(`Automation ${count + 1}/${URLs.length} completed.`);
             count++;
         }
         
-        chrome.storage.local.get(['errLog'], result => {
-            downloadLog('errLog.txt', result.errLog);
-        });
+        // chrome.storage.sync.get(['errorsLog'], result => {
+        //     downloadLog('errorsLog.txt', result.errorsLog);
+        // });
+
+        downloadLog('errorsLog.txt', errs.join('\n'));
 
         chrome.storage.local.get(['completedLog'], result => {
             downloadLog('completedLog.txt', result.completedLog);

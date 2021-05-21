@@ -62,5 +62,4 @@ chrome.storage.local.get([
             console.log(res.data);
         })
     }
-
 });
