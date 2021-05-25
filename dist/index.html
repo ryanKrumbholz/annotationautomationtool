@@ -5,24 +5,27 @@
     <script type="module" src="./main.js"></script>
   </head>
   <body>
-    <label for="entities">Entities</label>
-    <textarea id="entities" name="entities" rows="10" cols="50"></textarea>
-    <!-- <label for="separator">Separator</label>
-    <input type="text" id="separator"> -->
-    <label for="annotation">Annotation</label>
-    <textarea id="annotation" name="annotation" rows="10" cols="50" id="annotation"></textarea>
-    <label for="date">Date</label>
-    <input type="date" name="date" id="date">
-    <label for="visibility">Visibility</label>
-    <div>
-        <input type="radio" name="visibility" id="shared" value="shared" checked>
-        <label for="shared">Shared</label>
-        <input type="radio" name="visibility" id="private" value="private">
-        <label for="private">Private</label>
+    <div class="container">
+      <div class="loading"></div>
     </div>
-    <label for="starred">Starred</label>
-    <input type="checkbox" name="starred" id="starred">
-    <button id="submit">Submit</button>
+    <form id="annotationForm" name="annotationForm">
+      <label for="entities">Entities</label>
+      <textarea id="entities" name="entities" rows="10" cols="50"></textarea>
+      <label for="annotation">Annotation</label>
+      <textarea id="annotation" name="annotation" rows="10" cols="50" id="annotation"></textarea>
+      <label for="date">Date</label>
+      <input type="date" name="date" id="date">
+      <label for="visibility">Visibility</label>
+      <div>
+          <input type="radio" name="visibility" id="shared" value="shared" checked>
+          <label for="shared">Shared</label>
+          <input type="radio" name="visibility" id="private" value="private">
+          <label for="private">Private</label>
+      </div>
+      <label for="starred">Starred</label>
+      <input type="checkbox" name="starred" id="starred">
+      <button id="submit" type="submit">Submit</button>
+    </form>
     <script type="module" src="../src/background.js"></script>
     <script type="module" src="../src/index.js"></script>
   </body>
