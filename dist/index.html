@@ -10,11 +10,11 @@
     </div>
     <form id="annotationForm" name="annotationForm">
       <label for="entities">Entities</label>
-      <textarea id="entities" name="entities" rows="10" cols="50"></textarea>
+      <textarea id="entities" name="entities" rows="10" cols="50" required></textarea>
       <label for="annotation">Annotation</label>
-      <textarea id="annotation" name="annotation" rows="10" cols="50" id="annotation"></textarea>
+      <textarea id="annotation" name="annotation" rows="10" cols="50" id="annotation" maxlength="160" required></textarea>
       <label for="date">Date</label>
-      <input type="date" name="date" id="date">
+      <input type="date" name="date" id="date" required>
       <label for="visibility">Visibility</label>
       <div>
           <input type="radio" name="visibility" id="shared" value="shared" checked>
